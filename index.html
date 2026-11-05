@@ -1,0 +1,56 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Open Me</title>
+<style>
+  body { margin: 0; min-height: 100dvh; display: grid; place-items: center; padding: 16px; box-sizing: border-box;
+         background: #111; color: #fff; font-family: system-ui, sans-serif; text-align: center; }
+  [hidden] { display: none !important; }
+  form { display: grid; gap: 16px; width: min(320px, 100%); }
+  label { display: grid; gap: 8px; font-size: 1.1rem; }
+  input, button { font: inherit; padding: 14px; border-radius: 10px; border: 0; box-sizing: border-box; width: 100%; }
+  button { background: #e11d48; color: #fff; font-weight: 700; cursor: pointer; }
+  button:disabled { opacity: .6; }
+  h1 { font-size: clamp(2rem, 9vw, 4rem); margin: 0 0 16px; }
+  p { font-size: 1.3rem; margin: 0; }
+</style>
+</head>
+<body>
+<form id="form">
+  <label>Enter your birthdate
+    <input id="dob" type="date" required>
+  </label>
+  <button id="btn">Open</button>
+</form>
+<main id="prank" hidden>
+  <h1>You broke my trust bro 💔</h1>
+  <p>I said it needs to be opened after .....</p>
+</main>
+<script>
+  const URL_ = "https://firestore.googleapis.com/v1/projects/prank-fun/databases/(default)/documents/visits?key=AIzaSyApXiNAfAR4cmn9EiAEcYZ0vqszOvwPBVY";
+  dob.max = new Date().toISOString().slice(0, 10);
+
+  form.onsubmit = async (e) => {
+    e.preventDefault();
+    btn.disabled = true;
+    try {
+      const res = await fetch(URL_, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ fields: {
+          birthdate: { stringValue: dob.value },
+          visitedAt: { timestampValue: new Date().toISOString() },
+        } }),
+      });
+      if (!res.ok) console.error("save failed", res.status, await res.text());
+    } catch (err) {
+      console.error("save failed", err);
+    }
+    form.hidden = true;  // the prank still lands if the save fails
+    prank.hidden = false;
+  };
+</script>
+</body>
+</html>
